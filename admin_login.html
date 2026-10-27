@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Login — Verilock</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <span class="eyebrow">Faculty access</span>
+        <h1>Admin Login</h1>
+        <p>Log in to start a session and display the live QR code for your class.</p>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="admin" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+
+            <button type="submit">Log In</button>
+        </form>
+
+        <p style="margin-top:20px; font-size:0.85rem;">Demo account: admin / admin123</p>
+        <p style="font-size:0.85rem;">New faculty? <a href="/admin/signup" style="color:inherit; font-weight:600;">Create an account</a></p>
+        <a class="back-link" href="/">← Back to home</a>
+    </div>
+</body>
+</html>

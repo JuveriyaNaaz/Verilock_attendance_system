@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard — Verilock</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" style="max-width: 640px; text-align:center;">
+        <span class="eyebrow">Live session</span>
+        <h1 style="justify-content:center;">Classroom Display</h1>
+
+        <div class="badge-wrap">
+            <div class="badge-ring" id="ring" style="--pct: 100%;">
+                <img id="qr-image" src="/current_qr" alt="QR Code">
+            </div>
+        </div>
+        <div class="timer-label" id="timer-label">refreshing in {{ refresh_seconds }}s</div>
+        <p style="text-align:center; font-size:0.8rem; margin-top:8px;">
+            For testing on one laptop, copy this code into the student portal's manual entry box:<br>
+            <span id="current-code" style="font-family:'JetBrains Mono', monospace; background:#F5F7FA; padding:6px 10px; border-radius:6px; border:1px solid #E3E8EF; display:inline-block; margin-top:6px; user-select:all;">loading...</span>
+        </p>
+
+        <div class="stat-grid" style="margin-top:28px;">
+            <div class="stat-card ok">
+                <div class="value" id="present-count">0</div>
+                <div class="label">Present</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="total-count">0</div>
+                <div class="label">Total Students</div>
+            </div>
+        </div>
+
+        <h2 style="font-size:1rem; text-align:left; margin-top:24px;">Marked Present</h2>
+        <table id="present-table">
+            <tr><th>Name</th><th>Roll No.</th><th>Time</th></tr>
+        </table>
+
+        <a class="back-link" href="/admin/logout">Log out</a>
+        <a class="back-link" href="/admin/risk_report" style="margin-left:20px;">View AI Risk Report →</a>
+    </div>
+
+    <script>
+        const refreshSeconds = {{ refresh_seconds }};
+
+        function refreshQrAndRing() {
+            fetch('/token_timing')
+                .then(res => res.json())
+                .then(data => {
+                    const pct = (data.seconds_left / data.total_seconds) * 100;
+                    document.getElementById('ring').style.setProperty('--pct', pct + '%');
+                    document.getElementById('timer-label').innerText =
+                        Math.ceil(data.seconds_left) + 's remaining on this code';
+                    if (data.token) {
+                        document.getElementById('current-code').innerText = data.token;
+                    }
+                });
+        }
+
+        function refreshQrImage() {
+            const img = document.getElementById('qr-image');
+            img.src = '/current_qr?t=' + new Date().getTime();
+        }
+
+        function refreshAttendanceList() {
+            fetch('/attendance_data')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('present-count').innerText = data.present_count;
+                    document.getElementById('total-count').innerText = data.total_students;
+
+                    const table = document.getElementById('present-table');
+                    table.innerHTML = '<tr><th>Name</th><th>Roll No.</th><th>Time</th></tr>';
+                    data.present_list.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td>${row.name}</td><td>${row.roll_number}</td><td>${row.marked_at.split('T')[1].split('.')[0]}</td>`;
+                        table.appendChild(tr);
+                    });
+                });
+        }
+
+        setInterval(refreshQrImage, refreshSeconds * 1000);
+        setInterval(refreshQrAndRing, 1000);
+        setInterval(refreshAttendanceList, 3000);
+
+        refreshQrAndRing();
+        refreshAttendanceList();
+    </script>
+</body>
+</html>

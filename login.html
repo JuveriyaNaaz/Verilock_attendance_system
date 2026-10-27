@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Login — Verilock</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <span class="eyebrow">Student access</span>
+        <h1>Log In</h1>
+        <p>Enter your roll number and password to view your attendance and mark today's session.</p>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <label>Roll Number</label>
+            <input type="text" name="roll_number" placeholder="e.g. CS101" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+
+            <button type="submit">Log In</button>
+        </form>
+
+        <p style="margin-top:20px; font-size:0.85rem;">Demo accounts: CS101 / cs101, CS102 / cs102, CS103 / cs103</p>
+        <p style="font-size:0.85rem;">New student? <a href="/signup" style="color:inherit; font-weight:600;">Create an account</a></p>
+        <a class="back-link" href="/">← Back to home</a>
+    </div>
+</body>
+</html>

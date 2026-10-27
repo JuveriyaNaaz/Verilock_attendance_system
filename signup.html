@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign Up — QR Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Create Student Account</h1>
+        <p>Register once with your details, then log in to mark attendance and track your record.</p>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <label>Full Name</label>
+            <input type="text" name="name" placeholder="e.g. Juveriya Naaz" required>
+
+            <label>Roll Number</label>
+            <input type="text" name="roll_number" placeholder="e.g. CS104" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Choose a password" required>
+
+            <button type="submit">Create Account</button>
+        </form>
+
+        <p style="margin-top:16px; font-size:0.9rem;">Already registered? <a href="/login">Log in here</a></p>
+        <a class="back-link" href="/">← Back to home</a>
+    </div>
+</body>
+</html>

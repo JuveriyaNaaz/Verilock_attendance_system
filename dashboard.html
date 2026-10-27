@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Attendance Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" style="text-align:center;">
+        <h1>Live QR Code — Week 2</h1>
+        <p>This QR code refreshes automatically every {{ refresh_seconds }} seconds.<br>
+           Watch the "last updated" time below — it should change on its own.</p>
+
+        <img id="qr-image" src="/current_qr" alt="QR Code" style="width:300px; height:300px; border: 4px solid #1a5276; border-radius: 8px;">
+
+        <p>Last updated: <span id="last-updated">just now</span></p>
+
+        <p><a href="/">Back to home</a></p>
+    </div>
+
+    <script>
+        const refreshSeconds = {{ refresh_seconds }};
+
+        function refreshQrCode() {
+            const img = document.getElementById('qr-image');
+            // Add a timestamp to the URL so the browser doesn't just reuse a cached image
+            img.src = '/current_qr?t=' + new Date().getTime();
+
+            const now = new Date();
+            document.getElementById('last-updated').innerText = now.toLocaleTimeString();
+        }
+
+        // Refresh the QR code every `refreshSeconds` seconds, forever
+        setInterval(refreshQrCode, refreshSeconds * 1000);
+    </script>
+</body>
+</html>

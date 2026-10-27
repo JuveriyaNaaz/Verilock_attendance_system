@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Faculty Sign Up — Verilock</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <span class="eyebrow">Faculty access</span>
+        <h1>Create Faculty Account</h1>
+        <p>Register once with a username and password, then log in to start sessions and view live attendance.</p>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <label>Choose a Username</label>
+            <input type="text" name="username" placeholder="e.g. prof_sharma" required>
+
+            <label>Choose a Password</label>
+            <input type="password" name="password" placeholder="Choose a password" required>
+
+            <button type="submit">Create Account</button>
+        </form>
+
+        <p style="margin-top:16px; font-size:0.9rem;">Already have an account? <a href="/admin/login">Log in here</a></p>
+        <a class="back-link" href="/">← Back to home</a>
+    </div>
+</body>
+</html>

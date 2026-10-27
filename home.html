@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verilock — Smart Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <span class="eyebrow">Anti-proxy verification system</span>
+        <h1>Verilock Attendance</h1>
+        <p>A QR code that regenerates every few seconds — so only students physically in the room can be marked present. Screenshots expire before they can be reused.</p>
+
+        <ul class="nav-links">
+            <li><a href="/login">🎓 Student Login — mark attendance & view your record</a></li>
+            <li><a href="/signup">📝 New here? Create a student account</a></li>
+            <li><a href="/admin/login">🛡️ Admin Login — run a session & view live headcount</a></li>
+            <li><a href="/admin/signup">🧑‍🏫 New faculty? Create an admin account</a></li>
+        </ul>
+    </div>
+</body>
+</html>

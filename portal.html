@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Attendance — Verilock</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <span class="eyebrow">Student portal</span>
+        <h1>{{ name }}</h1>
+        <p style="margin-top:-10px;">Roll number: {{ roll }}</p>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="value">{{ overall_percentage }}%</div>
+                <div class="label">Overall Attendance</div>
+            </div>
+            <div class="stat-card">
+                <div class="value">{{ attended_count }}/{{ total_sessions }}</div>
+                <div class="label">Sessions Attended</div>
+            </div>
+            {% if risk %}
+            <div class="stat-card {% if risk.label == 'Safe' %}ok{% elif risk.label == 'Critical' %}pending{% endif %}">
+                <div class="value">
+                    {% if risk.label == 'Critical' %}🔴{% elif risk.label == 'Watch' %}🟡{% else %}🟢{% endif %}
+                    {{ risk.label }}
+                </div>
+                <div class="label">AI Risk Prediction</div>
+            </div>
+            {% else %}
+            <div class="stat-card">
+                <div class="value">—</div>
+                <div class="label">AI Risk (needs more data)</div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if last_attendance %}
+        <p style="font-size:0.85rem;">Last marked: <span style="color:#2563EB; font-family:'JetBrains Mono', monospace;">{{ last_attendance }}</span></p>
+        {% endif %}
+
+        <hr style="border-color:#E3E8EF; margin: 28px 0;">
+
+        <h2 style="font-size:1.1rem;">Subject-wise Attendance</h2>
+        <table>
+            <tr><th>Subject</th><th>Held</th><th>Attended</th><th>%</th></tr>
+            {% for row in subject_rows %}
+            <tr>
+                <td>{{ row.subject }}</td>
+                <td>{{ row.held }}</td>
+                <td>{{ row.attended }}</td>
+                <td>
+                    {% if row.percentage is not none %}
+                        {% if row.percentage < 75 %}
+                        <span style="color:#DC2626; font-weight:600;">{{ row.percentage }}%</span>
+                        {% else %}
+                        <span style="color:#0D9488; font-weight:600;">{{ row.percentage }}%</span>
+                        {% endif %}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <hr style="border-color:#E3E8EF; margin: 28px 0;">
+
+        <h2 style="font-size:1.1rem;">Mark Attendance</h2>
+        <p>Point your camera at whatever QR code is currently displayed for your class. It refreshes every few seconds, so scan promptly.</p>
+
+        <div id="reader" style="max-width:320px; margin: 16px auto;"></div>
+        <div id="scan-status"></div>
+
+        <details style="margin-top:20px;">
+            <summary style="color:#64748B; cursor:pointer; font-size:0.85rem;">Camera not working? Enter the code manually</summary>
+            <form id="manual-form" style="margin-top:14px;">
+                <label>Code from screen</label>
+                <input type="text" id="manual-token" placeholder="Paste or type the code shown on screen">
+                <button type="button" onclick="submitToken(document.getElementById('manual-token').value)">Submit Code</button>
+            </form>
+        </details>
+
+        <hr style="border-color:#E3E8EF; margin: 28px 0;">
+
+        <h2 style="font-size:1.1rem;">Recent Attendance History</h2>
+        {% if history %}
+        <table>
+            <tr><th>Subject</th><th>Date</th><th>Marked At</th></tr>
+            {% for row in history %}
+            <tr>
+                <td>{{ row['subject'] }}</td>
+                <td>{{ row['date'] }}</td>
+                <td>{{ row['marked_at'] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p style="font-size:0.9rem;">No attendance marked yet.</p>
+        {% endif %}
+
+        <a class="back-link" href="/logout">Log out</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        function submitToken(token) {
+            const statusBox = document.getElementById('scan-status');
+            fetch('/mark_attendance', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token: token})
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    statusBox.innerHTML = '<div class="success-box">' + data.message + '</div>';
+                    setTimeout(() => window.location.reload(), 1200);
+                } else {
+                    statusBox.innerHTML = '<div class="error-box">' + data.message + '</div>';
+                }
+            })
+            .catch(() => {
+                statusBox.innerHTML = '<div class="error-box">Could not reach server. Try again.</div>';
+            });
+        }
+
+        const scanner = new Html5Qrcode("reader");
+        scanner.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 220 },
+            (decodedText) => {
+                scanner.stop();
+                submitToken(decodedText);
+            },
+            () => { /* ignore per-frame scan failures */ }
+        ).catch((err) => {
+            document.getElementById('scan-status').innerHTML =
+                '<div class="error-box">Camera unavailable (' + err + '). Use manual code entry below.</div>';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Attendance Risk Report — Verilock</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <span class="eyebrow">AI-powered insight</span>
+        <h1>Attendance Risk Report</h1>
+        <p>A logistic regression model, trained on simulated semester attendance patterns, predicts which students are likely to fall below 75% overall attendance by semester end — based on their attendance pattern so far.</p>
+
+        {% if not model_available %}
+        <div class="error-box">Risk model not found. Run <code>python train_risk_model.py</code> once on the server, then restart the app.</div>
+        {% else %}
+        <table>
+            <tr><th>Name</th><th>Roll No.</th><th>Risk Level</th><th>Probability</th></tr>
+            {% for row in report_rows %}
+            <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.roll_number }}</td>
+                {% if row.risk %}
+                    {% if row.risk.label == 'Critical' %}
+                    <td style="color:#DC2626; font-weight:600;">🔴 Critical</td>
+                    {% elif row.risk.label == 'Watch' %}
+                    <td style="color:#CA8A04; font-weight:600;">🟡 Watch</td>
+                    {% else %}
+                    <td style="color:#0D9488; font-weight:600;">🟢 Safe</td>
+                    {% endif %}
+                    <td>{{ row.risk.probability }}%</td>
+                {% else %}
+                    <td style="color:#94A3B8;">Not enough data yet</td>
+                    <td>—</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+        <a class="back-link" href="/admin/dashboard">← Back to dashboard</a>
+    </div>
+</body>
+</html>
